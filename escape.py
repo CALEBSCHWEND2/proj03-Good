@@ -35,6 +35,10 @@ def print_location(location: str) -> None:
     
     Otherwise, print "Unknown location."
     """
+    if location in rooms:
+        print(f"You are in the {location}.")
+    else:
+        print("Unknown location.")
         
 def get_directions(location: str) -> dict[str, str]:
     """
@@ -47,7 +51,7 @@ def get_directions(location: str) -> dict[str, str]:
     
     If the room is unknown, return an empty dict: {}
     """
-    return {} # REPLACE ME
+    return rooms.get(location, {}).get("pathways", {})
 
 def find_room_by_direction(location: str, direction: str) -> str:
     """
@@ -62,7 +66,15 @@ def find_room_by_direction(location: str, direction: str) -> str:
     original location. If the direction is invalid, print an error message and
     return the current location.
     """
-    return "" # REPLACE ME
+    if location not in rooms:
+        print("Unknown location.")
+        return location
+    pathways = rooms.get(location, {}).get("pathways", {})
+    if direction in pathways:
+        return pathways[direction]
+    else:
+        print("Invalid direction. Try again.")
+        return location
 
 def has_key_for_room(room_id: str) -> bool:
     """
@@ -73,7 +85,14 @@ def has_key_for_room(room_id: str) -> bool:
     
     Return True if the player can enter the room, False otherwise.
     """
-    return False # REPLACE ME
+    if room_id not in rooms:
+        return False
+    required_key = rooms.get(room_id, {}).get("open_with", "")
+    if required_key == "":
+        return True
+    if required_key in pickable_objects:
+        return pickable_objects[required_key]["picked"]
+    return False
     
 def explore_room(location: str) -> None:
     """
@@ -91,6 +110,10 @@ def explore_room(location: str) -> None:
     print the message indicating the key was found. This should work through the
     dictionary data rather than hardcoded room checks.
     """
+    for key, info in pickable_objects.items():
+        if info["location"] == location and not info["picked"]:
+            info["picked"] = True
+            print(f"You found {key}.")
     
 
 def game_loop(location: str) -> None:
